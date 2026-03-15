@@ -1,0 +1,10 @@
+version: '3.9'
+
+services:
+  contract-api:
+    container_name: contract-api
+    build: .
+    restart: always
+    ports:
+      - '3030:3030'
+    shm_size: '1gb'
