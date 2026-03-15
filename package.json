@@ -1,7 +1,7 @@
 {
   "name": "mini-backend",
   "version": "1.0.0",
-  "description": "Minimal Express GET backend",
+  "description": "Contract generator",
   "main": "src/server.js",
   "type": "commonjs",
   "scripts": {
