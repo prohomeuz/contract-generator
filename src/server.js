@@ -13,6 +13,41 @@ const { gallery } = require('./images')
 
 app.disable('x-powered-by')
 app.set('etag', false)
+
+app.use((req, res, next) => {
+  const origin = req.headers.origin
+
+  if (origin) {
+    res.setHeader('Access-Control-Allow-Origin', origin)
+    res.setHeader('Access-Control-Allow-Credentials', 'true')
+
+    const vary = res.getHeader('Vary')
+    if (!vary) res.setHeader('Vary', 'Origin')
+    else if (typeof vary === 'string' && !vary.includes('Origin')) res.setHeader('Vary', `${vary}, Origin`)
+    else if (Array.isArray(vary) && !vary.includes('Origin')) res.setHeader('Vary', [...vary, 'Origin'])
+  } else {
+    res.setHeader('Access-Control-Allow-Origin', '*')
+  }
+
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS')
+
+  const requestHeaders = req.headers['access-control-request-headers']
+  res.setHeader('Access-Control-Allow-Headers', requestHeaders || 'Content-Type, Authorization')
+
+  if (req.headers['access-control-request-private-network']) {
+    res.setHeader('Access-Control-Allow-Private-Network', 'true')
+  }
+
+  res.setHeader('Access-Control-Max-Age', '86400')
+  res.setHeader(
+    'Access-Control-Expose-Headers',
+    'Content-Disposition, X-PDF-Time-Ms, X-PDF-Cache, Content-Length',
+  )
+
+  if (req.method === 'OPTIONS') return res.status(204).end()
+  return next()
+})
+
 app.use(express.json({ limit: '50mb' }))
 app.use(express.urlencoded({ extended: true, limit: '50mb' }))
 
