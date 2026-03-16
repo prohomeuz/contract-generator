@@ -1,46 +1,22 @@
-# ---------- BUILD STAGE ----------
-FROM node:20-bookworm AS builder
+# syntax=docker/dockerfile:1
+
+FROM mcr.microsoft.com/playwright:v1.58.2-jammy
 
 WORKDIR /app
 
-COPY package*.json ./
+ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 
-RUN npm ci
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev --no-audit --no-fund && npm cache clean --force
 
-COPY . .
+COPY src ./src
+RUN npm run build:css
 
-# Playwright browserlarni install qiladi
-RUN npx playwright install chromium
+ENV NODE_ENV=production
+ENV HOST=0.0.0.0
+ENV PORT=3000
 
+EXPOSE 3000
 
-# ---------- RUNTIME STAGE ----------
-FROM node:20-bookworm-slim
-
-WORKDIR /app
-
-# Playwright uchun kerakli system packages
-RUN apt-get update && apt-get install -y \
-    ca-certificates \
-    fonts-liberation \
-    libasound2 \
-    libatk-bridge2.0-0 \
-    libatk1.0-0 \
-    libcups2 \
-    libdrm2 \
-    libgbm1 \
-    libgtk-3-0 \
-    libnspr4 \
-    libnss3 \
-    libx11-xcb1 \
-    libxcomposite1 \
-    libxdamage1 \
-    libxrandr2 \
-    xdg-utils \
-    wget \
-    && rm -rf /var/lib/apt/lists/*
-
-COPY --from=builder /app /app
-
-EXPOSE 3030
-
-CMD ["node","app.js"]
+CMD ["node", "src/server.js"]

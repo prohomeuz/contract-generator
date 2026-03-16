@@ -1,14 +1,19 @@
 {
-  "name": "mini-backend",
+  "name": "contract-generator-app",
   "version": "1.0.0",
   "description": "Contract generator",
   "main": "src/server.js",
   "type": "commonjs",
   "scripts": {
-    "start": "node src/server.js"
+    "build:css": "npx @tailwindcss/cli -i ./src/style/input.css -o ./src/style/output.css --minify",
+    "dev": "npx @tailwindcss/cli -i ./src/style/input.css -o ./src/style/output.css && node src/server.js",
+    "start": "node src/server.js",
+    "start:prod": "NODE_ENV=production node src/server.js"
   },
   "dependencies": {
+    "@tailwindcss/cli": "^4.2.1",
     "express": "^4.18.2",
-    "playwright": "^1.58.2"
+    "playwright": "^1.58.2",
+    "tailwindcss": "^4.2.1"
   }
 }
